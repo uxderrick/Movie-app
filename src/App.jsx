@@ -1,23 +1,20 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import MovieCard from "./MovieCard";
 
 const API_URL = "http://www.omdbapi.com/?apikey=3506be6b";
 
-const movie1 = {
-  "Title": "The Matrix",
-  "Year": "1999",
-  "imdbID": "tt0133093",
-  "Type": "movie",
-  "Poster": "https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg"
-};
+const App = () => {
 
-function App() {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const [movies, setMovies] = useState([]);
+
   const searchMovies = async (title) => {
     const response = await fetch(`${API_URL}&s=${title}`);
     const data = await response.json();
 
-    console.log(data.Search);
+    setMovies(data.Search);
   };
 
   useEffect(() => {
@@ -33,40 +30,36 @@ function App() {
         <div className="search">
           <input
             placeholder="Search for movies"
-            value="Matrix"
-            onChange={() => {}}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter')
+              searchMovies(searchTerm)
+            }}
+
           ></input>
 
           <img
             src="src/assets/search.svg"
             alt="Search"
-            onClick={() => {}}
+            onClick={() => searchMovies(searchTerm)}
           ></img>
         </div>
 
-        <div className="container">
-          <div className="movie">
-            <div>
-              <p>{movie1.Year}</p>
-            </div>
+        {
+          movies?.length > 0
+            ? ( <div className="container">
+              {movies.map(((movie) => (
+            <MovieCard movie={movie}></MovieCard>
 
-            <div>
-              <img
-                src={
-                  movie1.Poster !== "N/A"
-                    ? movie1.Poster
-                    : "http://via.placeholder.com/400"
-                }
-                alt={movie1.Title}
-              ></img>
-            </div>
-
-            <div>
-              <span>{movie1.Type}</span>
-              <h3>{movie1.Title}</h3>
-            </div>
+              )))}
+          </div>)
+          : <div className="empty">
+            <h2>No movies found</h2>
           </div>
-        </div>
+        } 
+
+       
       </div>
     </>
   );
